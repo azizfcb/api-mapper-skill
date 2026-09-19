@@ -21,7 +21,8 @@ Use the clearest structure for the area. Include, where applicable:
 - ordered multi-request flows and the state passed between requests
 - computed values with exact algorithm, inputs, constants, input ordering, and output encoding;
   include language-neutral pseudocode when that makes the implementation clearer
-- evidence beside each endpoint: class and method, resource, smali method, or Hermes function/string
+- evidence beside each endpoint: class and method, resource, smali method, managed assembly/type/method,
+  or Hermes function/string
 - confidence (`confirmed-static`, `inferred`, or `candidate`) and what runtime behavior was not tested
 - blockers and discovered candidates that could not be connected to a reachable call site
 

@@ -4,8 +4,9 @@ description: >-
   Reverse-engineer and document the network APIs used by an Android APK or JADX project. Trace
   endpoints, clients, authentication, serialization, signing, and multi-step flows from the app's
   primary implementation: use hermes-dec for React Native Hermes bundles, direct source analysis
-  for plain JavaScript bundles, and JADX for Android-native code and native bridges. Use apktool for
-  resources or smali other tools cannot expose. Produce API docs and standalone replay scripts
+  for plain JavaScript bundles, dnSpy CLI on Windows or ILSpy CLI on macOS/Linux for .NET MAUI
+  assemblies, and JADX for Android-native code and native bridges. Use apktool for resources or
+  smali other tools cannot expose. Produce API docs and standalone replay scripts
   suitable for building a client or SDK. Use for requests to map, inspect, or document an APK's
   backend API. Do not use for website-only API mapping.
 ---
@@ -13,8 +14,8 @@ description: >-
 # APK API Mapper
 
 Map the API surface reachable from the target APK closely enough that another agent can implement
-a client without reopening the analysis tools. Treat decompiled Java as a lead, not ground truth: confirm
-ambiguous control flow with callers, cross-references, resources, or smali.
+a client without reopening the analysis tools. Treat decompiled source as a lead, not ground truth:
+confirm ambiguous control flow with callers, cross-references, resources, smali, or managed IL.
 
 Keep the APK and JADX project read-only. Do not rename symbols, edit code, attach the debugger,
 rebuild the APK, or install it unless the user asks.
@@ -22,21 +23,25 @@ rebuild the APK, or install it unless the user asks.
 ## Choose the primary artifact
 
 Identify the intended APK from its manifest or package tree, then classify the implementation as
-Android-native, WebView, React Native, Flutter, another embedded runtime, or a mixture. Follow the
-layer that owns request construction:
+Android-native, WebView, React Native, .NET MAUI, Flutter, another embedded runtime, or a mixture.
+Follow the layer that owns request construction:
 
 - For React Native, locate its JavaScript bundle (commonly `assets/index.android.bundle`) and
   analyze that first. If it is Hermes bytecode, read [references/hermes.md](references/hermes.md)
   and use hermes-dec as the primary analysis path. If it is plain JavaScript, trace the source
   directly. Use JADX only for Android configuration, app-owned native modules and bridges, JNI, or
   request behavior delegated out of the bundle.
+- For .NET MAUI, locate the managed assemblies or assembly store and read
+  [references/dotnet-maui.md](references/dotnet-maui.md). Decompile the assemblies with dnSpy CLI
+  on Windows and ILSpy CLI (`ilspycmd`) on macOS/Linux, selected by the analysis host OS. Use JADX
+  for Android configuration and Java/native bridges, not the managed request implementation.
 - For Android-native code, start in JADX.
 - For a mixed app, trace each request in its owning layer and follow only the bridges it crosses.
 - For other embedded runtimes, inspect their primary artifact when supported; do not infer behavior
   from Java wrappers.
 
-Do not require a full JADX survey before starting bundle analysis. Ask for the APK path when the
-primary artifact must be extracted and is not otherwise accessible.
+Do not require a full JADX survey before starting bundle or managed assembly analysis. Ask for the
+APK path when the primary artifact must be extracted and is not otherwise accessible.
 
 ## Use JADX for Android code
 
@@ -104,7 +109,7 @@ user's approval.
 ## Evidence and confidence
 
 Attach every material claim to an APK source such as `class#method`, a manifest/resource path, a
-smali method, or a Hermes function/string. Mark endpoints as:
+smali method, a managed assembly/type/method, or a Hermes function/string. Mark endpoints as:
 
 - **confirmed-static**: request construction and reachable call site were traced
 - **inferred**: some behavior comes from models, naming, or incomplete control flow

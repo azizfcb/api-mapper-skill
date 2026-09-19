@@ -16,20 +16,23 @@ and small replay scripts for behavior that cannot be described as a plain HTTP r
 | Skill | Target | Primary analysis path |
 | --- | --- | --- |
 | `api-mapper` | Websites | Chrome CDP capture, curl probing, and JavaScript bundle analysis |
-| `apk-api-mapper` | Android APKs | Hermes/JavaScript bundles for React Native; JADX for Android-native code and bridges |
+| `apk-api-mapper` | Android APKs | Hermes/JavaScript for React Native; dnSpy CLI (Windows) or ILSpy CLI (macOS/Linux) for .NET MAUI; JADX for Android-native code and bridges |
 
 The APK mapper follows the layer that owns each request. React Native Hermes bundles are analyzed
-with `hermes-dec`, plain JavaScript bundles are traced directly, and JADX is used when behavior
-lives in Android code or crosses a native bridge. `apktool` is an optional fallback for decoded
-resources or broad smali searches.
+with `hermes-dec`, plain JavaScript bundles are traced directly, and .NET MAUI assemblies are
+decompiled with dnSpy CLI on Windows or ILSpy CLI (`ilspycmd`) on macOS/Linux. JADX is used when
+behavior lives in Android code or crosses a native bridge. `apktool` is an optional fallback for
+decoded resources or broad smali searches.
 
 ## Requirements
 
 Install only the tools needed for the selected skill and target:
 
 - Website mapping: Python 3, Google Chrome, and curl or `curl.exe`
-- APK mapping: an APK file or JADX project, plus `hermes-dec` for Hermes bytecode, JADX MCP for
-  Android-native analysis, or `apktool` when decoded resources or broad smali searches are needed
+- APK mapping: an APK file or JADX project, plus `hermes-dec` for Hermes bytecode, dnSpy CLI (Windows)
+  or ILSpy CLI (macOS/Linux) for .NET MAUI assemblies, JADX MCP for Android-native analysis, or
+  `apktool` when decoded resources or broad smali searches are needed. Packed .NET assemblies also
+  need an extractor compatible with their assembly-store format.
 
 Missing optional tools are not installed automatically.
 
